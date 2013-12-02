@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+ <h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Kullanıcı Yönetim</title>
+ </h:head>
+ <h:body>
+     <h3>Kullanıcı Yönetim Uygulaması</h3>
+
+
+     <p:dialog modal="true" widgetVar="statusDialog" draggable="false" showHeader="false" closable="false" resizable="false">
+         <p:graphicImage value="/resources/ajaxloading.gif" />
+     </p:dialog>
+
+     <h:form id="dialogForm">
+     <p:commandButton id="showDialogButton" type="button" icon="ui-icon-plus" value="Yeni Kullanıcı ekle" actionListener="#{userMB.reset}" update="dialogForm:yeniKullaniciData " onclick="yeniKullanici.show()"/>
+
+         <p:dialog header="Yeni kullanıcı oluştur" widgetVar="yeniKullanici" resizable="false" visible="false">
+             <p:messages id="messages" autoUpdate="true"/>
+             <h:panelGrid id="yeniKullaniciData" columns="2" style="margin-bottom:10px">
+                 <h:outputLabel for="name" value="Adınız: *" />
+                 <p:inputText id="name" value="#{userMB.name}" required="true" requiredMessage="Lütfen adınızı giriniz!">
+                     <f:validateLength minimum="3" for="name" />
+                     <p:message for="name"/>
+                 </p:inputText>
+                 <h:outputLabel for="surname" value="Soyadınız: *" />
+                 <p:inputText id="surname" value="#{userMB.surname}" required="true" requiredMessage="Lütfen soyadınızı giriniz!" >
+                     <p:message for="surname" />
+                 </p:inputText>
+                 <h:outputLabel for="phone" value="Telefon:" />
+                 <p:inputMask value="#{userMB.phone}" id="phone" mask="(999) 999-9999"/>
+                 <p:captcha id="commentCaptcha"
+                         theme="white"
+                         required="true"
+                         requiredMessage="Lütfen Captcha yazısını giriniz!"
+                         validatorMessage="Lütfen Captcha yazısını doğru giriniz!"
+                         language="tr" />
+                 <f:facet name="footer">
+                     <p:commandButton id="addUser" value="Kaydet"
+                                      actionListener="#{userMB.addUser}"
+                                      update=":padding"
+                                      ajax="true"
+                                      oncomplete="handleNewUser(xhr, status, args, yeniKullanici);Recaptcha.reload();"/>
+                     <p:commandButton id="cancelAddUser" value="İptal" ajax="true" update=":padding"
+                                      oncomplete="yeniKullanici.hide();"/>
+                 </f:facet>
+             </h:panelGrid>
+         </p:dialog>
+     </h:form>
+     <br/>
+
+     <h:panelGroup id="padding" layout="block">
+         <h:form id="userForm">
+
+        <p:dataTable id="users" var="user"
+                          value="#{userMB.userList}" style="width: 50%" paginator="true" rows="10"
+                          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                          rowsPerPageTemplate="5,10,15">>
+                 <p:column>
+                     <f:facet name="header">
+                         <h:outputText value="Adı" />
+                     </f:facet>
+                     <h:outputText value="#{user.firstName}" />
+                 </p:column>
+                 <p:column>
+                     <f:facet name="header">
+                         <h:outputText value="Soyadı" />
+                     </f:facet>
+                     <h:outputText value="#{user.lastName}" />
+                 </p:column>
+                 <p:column>
+                     <f:facet name="header">
+                         <h:outputText value="Telefon" />
+                     </f:facet>
+                     <h:outputText value="#{user.phone}" />
+                 </p:column>
+                 <p:column>
+                     <p:commandButton process="@this" title="Güncelle" icon="ui-icon-pencil" oncomplete="guncellenecekKullanici.show()" update=":userForm:guncellenecekKullaniciData">
+                         <f:setPropertyActionListener target="#{userMB.selectedUser}"  value="#{user}" />
+                     </p:commandButton>
+
+                     <p:commandButton process="@this" title="Sil" action="#{userMB.deleteUser}" icon="ui-icon-close"  update=":padding">
+                         <f:setPropertyActionListener target="#{userMB.selectedUser}"  value="#{user}"/>
+                         <p:confirm header="Kullanıcı silininiyor" message="Kullanıcıyı silmek istediğinizden emin misiniz?" icon="ui-icon-alert" />
+                     </p:commandButton>
+                     <p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+                         <p:commandButton value="Evet" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+                         <p:commandButton value="Hayır" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>
+                     </p:confirmDialog>
+                 </p:column>
+             </p:dataTable>
+
+             <p:dialog header="Kullanıcıyı güncelle" widgetVar="guncellenecekKullanici" resizable="false" visible="false">
+                 <h:panelGrid id="guncellenecekKullaniciData" columns="2" style="margin-bottom:10px">
+                     <h:outputLabel for="name" value="Adınız:" />
+                     <p:inputText id="name" value="#{userMB.selectedUser.firstName}" required="true" requiredMessage="Lütfen adınızı giriniz!">
+                         <f:validateLength minimum="3" />
+                         <p:ajax event="blur" update="nameMsg" />
+                         <p:message id="nameMsg" for="name" display="icon"/>
+                     </p:inputText>
+                     <h:outputLabel for="surname" value="Soyadınız: " />
+                     <p:inputText id="surname" value="#{userMB.selectedUser.lastName}" required="true" requiredMessage="Lütfen soyadınızı giriniz!" />
+                     <h:outputLabel for="phone" value="Telefon:" />
+                     <p:inputMask value="#{userMB.selectedUser.phone}" id="phone" mask="(999) 999-9999"/>
+                     <f:facet name="footer">
+                         <p:commandButton id="updateUser" value="Kaydet" actionListener="#{userMB.updateUser}" update=":padding"
+                                          ajax="true" oncomplete="handleNewUser(xhr, status, args, guncellencekKullanici)"    />
+                         <p:commandButton id="cancalUpdateUser" type="button" value="İptal" ajax="true" update=":padding"
+                                          onclick="guncellenecekKullanici.hide();"/>
+                     </f:facet>
+                 </h:panelGrid>
+             </p:dialog>
+
+         </h:form>
+
+         <script type="text/javascript">
+             function handleNewUser(xhr, status, args, widgetVar) {
+                 if(args.validationFailed) {
+                     widgetVar.jq.effect("shake", { times:5 }, 100);
+                 }
+                 else {
+                     widgetVar.hide();
+                 }
+             }
+         </script>
+     </h:panelGroup>
+ </h:body>
+</html> 
