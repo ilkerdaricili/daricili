@@ -20,6 +20,7 @@ import java.util.List;
 @ManagedBean(name="userMB")
 @ViewScoped
 @Data
+
 public class UserManagedBean implements Serializable {
 
 

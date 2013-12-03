@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -11,14 +12,17 @@
  <h:body>
      <h3>Kullanıcı Yönetim Uygulaması</h3>
 
+      <p:ajaxStatus onstart="PF('statusDialog').show();" onsuccess="PF('statusDialog').hide();"/>
 
-     <p:dialog modal="true" widgetVar="statusDialog" draggable="false" showHeader="false" closable="false" resizable="false">
+     <p:dialog modal="true" widgetVar="statusDialog" header="Status"
+               draggable="false" closable="false">
          <p:graphicImage value="/resources/ajaxloading.gif" />
      </p:dialog>
 
+     <h:form>
+         <p:commandButton process="@this" id="showDialogButton" type="button" actionListener="#{userMB.reset}"  icon="ui-icon-plus" value="Yeni Kullanıcı ekle" update=":dialogForm:yeniKullaniciData " onclick="yeniKullanici.show();"/>
+     </h:form>
      <h:form id="dialogForm">
-     <p:commandButton id="showDialogButton" type="button" icon="ui-icon-plus" value="Yeni Kullanıcı ekle" actionListener="#{userMB.reset}" update="dialogForm:yeniKullaniciData " onclick="yeniKullanici.show()"/>
-
          <p:dialog header="Yeni kullanıcı oluştur" widgetVar="yeniKullanici" resizable="false" visible="false">
              <p:messages id="messages" autoUpdate="true"/>
              <h:panelGrid id="yeniKullaniciData" columns="2" style="margin-bottom:10px">
@@ -108,7 +112,7 @@
                      <p:inputMask value="#{userMB.selectedUser.phone}" id="phone" mask="(999) 999-9999"/>
                      <f:facet name="footer">
                          <p:commandButton id="updateUser" value="Kaydet" actionListener="#{userMB.updateUser}" update=":padding"
-                                          ajax="true" oncomplete="handleNewUser(xhr, status, args, guncellencekKullanici)"    />
+                                          ajax="false" oncomplete="handleNewUser(xhr, status, args, guncellencekKullanici)"    />
                          <p:commandButton id="cancalUpdateUser" type="button" value="İptal" ajax="true" update=":padding"
                                           onclick="guncellenecekKullanici.hide();"/>
                      </f:facet>

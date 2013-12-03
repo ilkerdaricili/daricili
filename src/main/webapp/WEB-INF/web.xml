@@ -8,6 +8,11 @@
 
     <display-name>Welcome to JSF Spring MongoDB Project</display-name>
 
+    <context-param>
+        <param-name>javax.faces.request.charset</param-name>
+        <param-value>UTF-8</param-value>
+    </context-param>
+
     <!-- Spring Context Configuration' s Path definition -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
